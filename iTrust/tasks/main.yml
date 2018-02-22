@@ -1,0 +1,100 @@
+- include_vars: mysql.yml
+- include_vars: credentials.yml
+- include_vars: paths.yml
+
+- debug: msg="the value of github_username is {{ github_username }}"
+
+- name: Install Git
+  become: yes
+  apt: pkg=git state=present update_cache=true cache_valid_time=1200
+
+- name: Remove previous clone if present
+  file:
+    state: absent
+    path: '{{iTrust_path}}'
+
+- name: Cloning iTrust1 Github repo
+  git:
+    repo: https://{{ github_username | urlencode }}:{{ github_password}}@github.ncsu.edu/engr-csc326-staff/iTrust2-v2.git
+    clone: yes
+    dest: /home/vagrant/{{iTrust_path}}
+
+- name: Add Oracle Java Repository
+  become: yes
+  apt_repository: repo='ppa:webupd8team/java'
+
+- name: Accept Java 8 License
+  become: yes
+  debconf: name='oracle-java8-installer' question='shared/accepted-oracle-license-v1-1' value='true' vtype='select'
+
+- name: Install Oracle Java 8
+  become: yes
+  apt: name={{item}} state=latest
+  with_items:
+    - oracle-java8-installer
+    - ca-certificates
+    - oracle-java8-set-default
+
+- name: Install Maven
+  become: yes
+  apt: pkg=maven state=present update_cache=true cache_valid_time=1200
+
+- name: Set MySQL root password before installing
+  become: yes
+  debconf: name='mysql-server' question='mysql-server/root_password' value='{{root_password | quote}}' vtype='password'
+
+- name: Confirm MySQL root password before installing
+  become: yes
+  debconf: name='mysql-server' question='mysql-server/root_password_again' value='{{root_password | quote}}' vtype='password'
+
+- name: Install mysql-server
+  become: yes
+  apt: pkg=mysql-server state=present update_cache=true cache_valid_time=1200
+
+
+- name: Create db.properties file from db.properties.template
+  copy: remote_src=true src={{iTrust_path}}/iTrust2/src/main/java/db.properties.template dest=~/{{iTrust_path}}/iTrust2/src/main/java/db.properties
+
+- name: Create hibernate.properties from hibernate.properties.template
+  copy: remote_src=true src={{iTrust_path}}/iTrust2/src/main/resources/hibernate.properties.template dest=~/{{iTrust_path}}/iTrust2/src/main/resources/hibernate.properties
+
+- name: Copy hibernate.cfg.xml to src/main/resources/ folder
+  copy: remote_src=true src={{iTrust_path}}/iTrust2/src/main/java/email.properties.template dest=~/{{iTrust_path}}/iTrust2/src/main/java/email.properties
+
+- name: Replace {{root_db_password}} with the root_password variable
+  replace:
+   path: {{iTrust_path}}/iTrust2/src/main/java/db.properties
+   regexp: 'password'
+   replace: "password {{root_password}}"
+
+- name: Replace {{root_db_password}} with the root_password variable
+  replace:
+   path: {{iTrust_path}}/iTrust2/src/main/resources/hibernate.properties
+   regexp: 'hibernate.connection.password = '
+   replace: "hibernate.connection.password = {{root_password}}"
+
+- name: "Skip grant tables"
+  template: src=mysqld.cnf.template dest={{mysql_location}}/mysqld.cnf
+  become: yes
+
+- name: "Restart mysql service"
+  service: name=mysql state=restarted
+  become: yes
+
+- name: 1 Minute Wait time for application start-up
+  pause:
+   minutes: 1
+
+- name: Creating the sample tables
+  shell: mvn process-test-classes
+  args:
+   chdir: {{iTrust_path}}/iTrust2
+
+- name: 2 Minute Wait time for application start-up
+  pause:
+   minutes: 2
+
+- name: Starting the application
+  shell: nohup mvn jetty:run &
+  args:
+   chdir: {{iTrust_path}}/iTrust2
