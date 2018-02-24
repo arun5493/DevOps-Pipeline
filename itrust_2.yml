@@ -1,0 +1,23 @@
+- name: Installing packages for building iTrust and adding jenkins build job for iTrust
+  hosts: localhost
+  tasks:
+  - name: Create db.properties file from db.properties.template
+    copy: remote_src=true src={{iTrust_path}}/iTrust2/src/main/java/db.properties.template dest="{{ iTrust_path }}/iTrust2/src/main/java/db.properties"
+
+  - name: Create hibernate.properties from hibernate.properties.template
+    copy: remote_src=true src={{ iTrust_path}}/iTrust2/src/main/resources/hibernate.properties.template dest="{{ iTrust_path }}/iTrust2/src/main/resources/hibernate.properties"
+
+  - name: Copy hibernate.cfg.xml to src/main/resources/ folder
+    copy: remote_src=true src={{iTrust_path}}/iTrust2/src/main/java/email.properties.template dest="{{ iTrust_path }}/iTrust2/src/main/java/email.properties"
+
+  - name: Replace {{root_password}} with the root_password variable
+    replace:
+     path: "{{ iTrust_path }}/iTrust2/src/main/java/db.properties"
+     regexp: 'password'
+     replace: "password {{mysql_password}}"
+
+  - name: Replace {{root_db_password}} with the root_password variable
+    replace:
+     path: "{{ iTrust_path }}/iTrust2/src/main/resources/hibernate.properties"
+     regexp: 'hibernate.connection.password = '
+     replace: "hibernate.connection.password = {{mysql_password}}"
