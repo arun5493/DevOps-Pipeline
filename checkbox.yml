@@ -1,0 +1,3 @@
+- hosts: checkbox
+  roles:
+    - deploy_checkbox
