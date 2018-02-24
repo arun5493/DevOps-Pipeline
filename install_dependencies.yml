@@ -1,0 +1,5 @@
+---
+- hosts: jenkins,itrust,checkbox
+  gather_facts: no
+  roles:
+    - install_dependencies

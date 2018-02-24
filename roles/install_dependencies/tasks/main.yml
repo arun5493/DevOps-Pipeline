@@ -1,0 +1,12 @@
+- name: Installing python
+  raw: test -e /usr/bin/python || (apt -y update && apt install -y python-minimal)
+  become: yes
+
+- name: Run the equivalent of "apt-get update" as a separate step
+  apt:
+   update_cache: yes
+  become: yes
+
+- copy:
+   src: "{{project_path}}"
+   dest: /home/ubuntu/
