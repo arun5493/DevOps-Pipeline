@@ -1,0 +1,147 @@
+- name: Add Jenkins Repository Key
+  apt_key:
+    url: "https://pkg.jenkins.io/debian/jenkins-ci.org.key"
+    state: present
+    validate_certs: no
+  become: yes
+
+- name: Include Jenkins to source list
+  apt_repository:
+   repo: deb http://pkg.jenkins.io/debian-stable binary/
+   state: present
+   filename: 'jenkins.list'
+  become: yes
+
+- name: Add Ansible repo
+  apt_repository:
+   repo: ppa:ansible/ansible
+   update_cache: yes
+   state: present
+  become: yes
+
+- name: Install packages
+  apt: pkg={{ item }} state=present update_cache=true
+  with_items:
+   - git
+   - openjdk-8-jdk
+   - ansible
+  become: yes
+
+- name: java version set
+  become: yes
+  shell: update-alternatives --config java
+
+- name: Install Jenkins
+  apt:
+    name: jenkins
+    state: present
+    update_cache: yes
+  become: yes
+  register: jenkins_install
+
+- name: Replace the config.xml file
+  template:
+    src: config.xml.j2
+    dest: /var/lib/jenkins/config.xml
+  become: yes
+
+- name: Create a init.groovy.d directory
+  file:
+    path: "/var/lib/jenkins/init.groovy.d"
+    state: directory
+    mode: 0777
+  become: yes
+
+- name: Create a user using groovy script
+  template:
+    src: security.groovy.j2
+    dest: /var/lib/jenkins/init.groovy.d/basic-security.groovy
+    mode: 0777
+  become: yes
+
+- name: Defaulting setup wizard to false
+  lineinfile:
+   path: /etc/default/jenkins
+   line: JAVA_ARGS="-Djenkins.install.runSetupWizard=false"
+   state: present
+  become: yes
+
+- name: Restart Jenkins
+  service:
+   name: jenkins
+   state: restarted
+  become: yes
+
+- name: Wait for Jenkins to start up
+  uri:
+    url: "http://{{inventory_hostname}}:8080/cli/"
+    status_code: 200
+    timeout: 5
+  register: jenkins_service_status
+  retries: 60
+  delay: 5
+  until: >
+     'status' in jenkins_service_status and
+     jenkins_service_status['status'] == 200
+
+- name: Install Jenkin Plugins
+  jenkins_plugin:
+    name: "{{ item }}"
+    params:
+    url_username: "{{jenkins_url_username}}"
+    url_password: "{{jenkins_url_password}}"
+    url: "http://{{inventory_hostname}}:8080"
+    validate_certs: no
+  with_items:
+    - git
+    - postbuildscript
+    - postbuild-task
+    - ws-cleanup
+  become: yes
+
+- name: Restart Jenkins
+  service:
+    name: jenkins
+    state: restarted
+  become: yes
+
+- name: Wait for Jenkins to start up
+  uri:
+    url: "http://{{inventory_hostname}}:8080/cli/"
+    status_code: 200
+    timeout: 5
+  register: jenkins_service_status
+  retries: 60
+  delay: 5
+  until: >
+     'status' in jenkins_service_status and
+     jenkins_service_status['status'] == 200
+
+- name: Fetching the jenkins jar from jenkins server
+  get_url:
+   url: http://{{inventory_hostname}}:8080/jnlpJars/jenkins-cli.jar
+   dest: /tmp/
+  become: yes
+
+- file:
+   path: "{{project_path}}/ec2.key"
+   mode: 0600
+   owner: jenkins
+   group: jenkins
+  become: yes
+
+- file:
+   path: /var/lib/jenkins/.ssh
+   mode: 0700
+   state: directory
+   owner: jenkins
+   group: jenkins
+  become: yes
+
+- file:
+   path: /var/lib/jenkins/.ssh/known_hosts
+   mode: 0664
+   state: touch
+   owner: jenkins
+   group: jenkins
+  become: yes
