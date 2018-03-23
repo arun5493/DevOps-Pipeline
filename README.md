@@ -7,7 +7,7 @@ Name  | Unity ID
 ------------- | -------------
 Arun Jaganathan | ajagana
 Balasubramanian Ramesh Babu | bramesh
-Kirthika Sekhar | ksekhar
+Krithika Sekhar | ksekhar
 Vivek Mani | vmani2
 
 
