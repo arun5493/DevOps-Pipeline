@@ -28,7 +28,7 @@
   <builders>
     <hudson.tasks.Shell>
       <command>cd server-side/site/
-npm install || exit 1</command>
+npm install || exit 0</command>
     </hudson.tasks.Shell>
   </builders>
   <publishers>
@@ -43,10 +43,24 @@ npm install || exit 1</command>
           </logTexts>
           <EscalateStatus>false</EscalateStatus>
           <RunIfJobSuccessful>false</RunIfJobSuccessful>
-          <script>ansible-playbook -i {{project_path}}/hosts {{project_path}}/checkbox.yml --vault-password-file {{project_path}}/vault_pass.txt</script>
+          <script>ansible-playbook -i {{project_path}}/hosts {{project_path}}/checkbox_2.yml --vault-password-file {{project_path}}/vault_pass.txt</script>
         </hudson.plugins.postbuildtask.TaskProperties>
       </tasks>
     </hudson.plugins.postbuildtask.PostbuildTask>
+	<htmlpublisher.HtmlPublisher plugin="htmlpublisher@1.14">
+      <reportTargets>
+        <htmlpublisher.HtmlPublisherTarget>
+          <reportName>HTML Report</reportName>
+          <reportDir>{{checkbox_path}}/server-side/site/coverage/lcov-report/</reportDir>
+          <reportFiles>index.html</reportFiles>
+          <alwaysLinkToLastBuild>false</alwaysLinkToLastBuild>
+          <reportTitles></reportTitles>
+          <keepAll>false</keepAll>
+          <allowMissing>false</allowMissing>
+          <includes>*, site/*, site/routes/*</includes>
+        </htmlpublisher.HtmlPublisherTarget>
+      </reportTargets>
+    </htmlpublisher.HtmlPublisher>
   </publishers>
   <buildWrappers/>
 </project>

@@ -1,21 +1,41 @@
-- name: Accept new ssh fingerprints for Checkbox.io
-  shell: ssh-keyscan -H {{ hostvars[groups['checkbox'][0]].inventory_hostname}} >> /var/lib/jenkins/.ssh/known_hosts
+- name: Install required packages
+  apt:
+    pkg: '{{item}}'
+    state: present
+    update_cache: yes
+  become: yes
+  with_items:
+    - nginx
+    - mongodb
+    - python3-pip
+    - unzip
+
+- name: Install Forever node package
+  npm:
+    name: forever
+    state: present
+    global: yes
   become: yes
 
-- name: Install packages for checkbox.io
-  apt: pkg={{ item }} state=present
-  with_items:
-   - npm
-   - nodejs
-   - python-pip
+
+- name: Install python package for mongodb
+  pip:
+    name: pymongo
+    state: present
   become: yes
 
-- name: Install ansible modules
+- name: Add a new mongodb user
+  mongodb_user:
+    database: admin
+    name: "{{mongo_user}}"
+    password: "{{mongo_password}}"
+    state: present
+
+- name: Restart mongoDb
+  service:
+   name: mongodb
+   state: restarted
   become: yes
-  pip: name={{ item }}
-  with_items:
-   - python-jenkins
-   - lxml
 
 - name: Copy the checkbox config file
   template:
