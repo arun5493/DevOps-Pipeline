@@ -1,0 +1,122 @@
+- name: Installing packages for building iTrust and adding jenkins build job for iTrust
+  hosts: localhost
+  tasks:
+  - name: Install required node packages
+    npm:
+      name: "{{ item.name }}"
+      path: "{{checkbox_path}}/server-side/site"
+      state: latest
+    with_items:
+    - name: body-parser
+    - name: chai
+    - name: expect
+    - name: hbs
+    - name: istanbul-middleware
+    - name: iter-tools
+    - name: lodash
+    - name: mocha
+    - name: randexp
+    - name: url
+    - name: esprima
+    - name: faker
+    - name: istanbul
+    - name: mock-fs
+    - name: random-js
+    - name: request
+
+  - name: Copy nginx.conf from repo /etc/nginx
+    copy: src="{{checkbox_path}}/local-conf/nginx.conf" dest=/etc/nginx/nginx.conf
+    become: yes
+
+  - name: Restart nginx
+    service:
+     name: nginx
+     state: restarted
+    become: yes
+  
+  - name: Modify the server root in the default file
+    replace:
+      path: "{{checkbox_path}}/local-conf/default"
+      regexp: "root (.)+;"
+      replace: "root {{checkbox_path}}/public_html/;"
+
+  - name: Copy default file from repo to nginx folder
+    copy: src="{{checkbox_path}}/local-conf/default" dest=/etc/nginx/sites-available/default
+    become: yes
+
+  - name: Copy the index.js, main.js, modserver.js, query.js file
+    template:
+      src: '{{item}}.j2'
+      dest: "{{checkbox_path}}/server-side/site/{{item}}"
+    with_items:
+      - index.js
+      - main.js
+      - modserver.js
+      - query.js
+    
+  - name: Create the src directory
+    file:
+      path: "{{checkbox_path}}/server-side/site/src"
+      state: directory
+
+  - name: Copying the constriant.js, testgenerator.js and format-polyfill.js files.
+    template:
+      src: '{{item}}.j2'
+      dest: "{{checkbox_path}}/server-side/site/src/{{item}}"
+    with_items:
+      - constraint.js
+      - testgenerator.js
+      - format-polyfill.js
+
+  - name: Run query.js
+    shell: mongo site query.js
+    args:
+     chdir: "{{checkbox_path}}/server-side/site/"
+
+  - name: Running server.js
+    shell: forever start index.js
+    args:
+     chdir: "{{checkbox_path}}/server-side/site/"
+    environment:
+      MONGO_PORT: "{{mongo_port}}"
+      MONGO_IP: "{{mongo_ip}}"
+      MONGO_USER: "{{mongo_user}}"
+      MONGO_PASSWORD: "{{mongo_password}}"
+      MAIL_USER: "{{email_username}}"
+      MAIL_PASSWORD: "{{email_password}}"
+      MAIL_SMTP: "{{email_smtp}}"
+
+  - name: Running Main.js - To generate test.js
+    shell: cd {{checkbox_path}}/server-side/site/; node main.js
+
+  - name: Wait for 30 seconds
+    pause:
+      seconds: 30
+
+  - name: Running test.js
+    shell: node test.js
+    args:
+     chdir: "{{checkbox_path}}/server-side/site/"
+
+  - name: Wait for 30 seconds
+    pause:
+      seconds: 30
+      
+  - name: Download the coverage file from istanbul-middleware
+    get_url:
+      url: "http://localhost:{{mongo_port}}/coverage/download"
+      dest: "{{checkbox_path}}/server-side/site/"
+
+  - name: Create the /coverage folder
+    file:
+     path: "{{checkbox_path}}/server-side/site/coverage"
+     state: directory
+
+  - name: Unzipping the Coverage Report
+    unarchive:
+      src: "{{checkbox_path}}/server-side/site/coverage.zip"
+      dest: "{{checkbox_path}}/server-side/site/coverage/"
+      remote_src: yes
+
+  - name: Stopping the Checkbox Server.js
+    shell: forever stopall
