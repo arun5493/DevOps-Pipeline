@@ -1,0 +1,102 @@
+iTrust Analysis report after 100 Fuzzes
+
+******************************************
+Based on Time taken to execute
+******************************************
+INDEX      TEST CASE NAME                                                                                        RUN COUNT   TOTAL EXECUTION TIME
+1          testEmail                                                                                             100         250.58095           
+2          testCodeAPI                                                                                           100         4.239               
+3          testPersonnelForm                                                                                     100         2.5560005           
+4          testCreateBadAppointmentRequest                                                                       100         0.16700001          
+5          testRequestReset                                                                                      100         0.121999994         
+6          testSendEmail                                                                                         100         0.096000016         
+7          testGetNonExistentAppointment                                                                         100         0.087000005         
+8          testInvalidPasswordChanges                                                                            100         0.036999993         
+9          testValidPasswordChanges                                                                              100         0.028000003         
+10         testOfficeVisitAPI                                                                                    100         0.025               
+11         testDrugAPI                                                                                           100         0.023000002         
+12         testDiagnoses                                                                                         100         0.022000002         
+13         testOfficeVisit                                                                                       100         0.018000001         
+14         testUserLockouts                                                                                      100         0.017               
+15         testDeleteNonExistentAppointment                                                                      100         0.016               
+16         testUserAPI                                                                                           100         0.0150000015        
+17         testGetNonExistentPersonnel                                                                           100         0.014000001         
+18         testDeleteNonExistentOfficeVisit                                                                      100         0.014000001         
+19         testLogByDateLarge                                                                                    100         0.013000001         
+20         testHospitalAPI                                                                                       100         0.013000001         
+21         testPersonnelAPI                                                                                      100         0.013000001         
+22         testLogging                                                                                           100         0.013000001         
+23         testLogByDate                                                                                         100         0.012000001         
+24         testPrescriptionAPI                                                                                   100         0.012000001         
+25         testInvalidCodes                                                                                      100         0.012               
+26         testPatientUnauthenticated                                                                            100         0.010000001         
+27         testDelete                                                                                            100         0.010000001         
+28         testPatientAPI                                                                                        100         0.010000001         
+29         testGetNonExistentPatient                                                                             100         0.010000001         
+30         testGetNonExistentHospital                                                                            100         0.010000001         
+31         testEnumAPI                                                                                           100         0.009000001         
+32         testPasswordReset                                                                                     100         0.009000001         
+33         testCodes                                                                                             100         0.009000001         
+34         testEqualsAndProperties                                                                               100         0.009000001         
+35         testGetNonExistentUser                                                                                100         0.008               
+36         testAppointmentRequestAPI                                                                             100         0.008               
+37         testPreScheduledOfficeVisit                                                                           100         0.0070000007        
+38         testGetNonExistentOfficeVisit                                                                         100         0.0070000007        
+39         testCreateDomainObject                                                                                100         0.0070000007        
+40         testPasswordChangeForm                                                                                100         0.0070000007        
+41         testPatientDateOfDeath                                                                                100         0.0060000005        
+42         testIPLockouts                                                                                        100         0.0050000004        
+43         testRetrieveDomainObject                                                                              100         0.0050000004        
+44         testHospitalForm                                                                                      100         0.003               
+45         testPatientAsPatient                                                                                  100         0.002               
+46         testFieldValidation                                                                                   100         0.002               
+******************************************
+Based on Number of failures
+******************************************
+INDEX      TEST CASE NAME                                                                                        RUN COUNT   FAIL COUNT 
+1          testDiagnoses                                                                                         100         100       
+2          testCodeAPI                                                                                           100         100       
+3          testPatientUnauthenticated                                                                            100         100       
+4          testPreScheduledOfficeVisit                                                                           100         100       
+5          testLogByDateLarge                                                                                    100         100       
+6          testCreateBadAppointmentRequest                                                                       100         100       
+7          testUserAPI                                                                                           100         100       
+8          testIPLockouts                                                                                        100         100       
+9          testDelete                                                                                            100         100       
+10         testHospitalAPI                                                                                       100         100       
+11         testSendEmail                                                                                         100         100       
+12         testPatientAPI                                                                                        100         100       
+13         testGetNonExistentOfficeVisit                                                                         100         100       
+14         testRequestReset                                                                                      100         100       
+15         testPatientDateOfDeath                                                                                100         100       
+16         testDrugAPI                                                                                           100         100       
+17         testPatientAsPatient                                                                                  100         100       
+18         testValidPasswordChanges                                                                              100         100       
+19         testOfficeVisitAPI                                                                                    100         100       
+20         testEmail                                                                                             100         100       
+21         testEnumAPI                                                                                           100         100       
+22         testLogByDate                                                                                         100         100       
+23         testPasswordReset                                                                                     100         100       
+24         testUserLockouts                                                                                      100         100       
+25         testPrescriptionAPI                                                                                   100         100       
+26         testInvalidPasswordChanges                                                                            100         100       
+27         testAppointmentRequestAPI                                                                             100         100       
+28         testPersonnelAPI                                                                                      100         100       
+29         testLogging                                                                                           100         100       
+30         testOfficeVisit                                                                                       100         100       
+31         testRetrieveDomainObject                                                                              100         100       
+32         testDeleteNonExistentOfficeVisit                                                                      100         100       
+33         testInvalidCodes                                                                                      100         100       
+34         testCreateDomainObject                                                                                100         100       
+35         testPasswordChangeForm                                                                                100         100       
+36         testEqualsAndProperties                                                                               100         88        
+37         testGetNonExistentPersonnel                                                                           100         53        
+38         testDeleteNonExistentAppointment                                                                      100         53        
+39         testGetNonExistentPatient                                                                             100         53        
+40         testGetNonExistentUser                                                                                100         53        
+41         testGetNonExistentHospital                                                                            100         53        
+42         testGetNonExistentAppointment                                                                         100         53        
+43         testFieldValidation                                                                                   100         48        
+44         testHospitalForm                                                                                      100         0         
+45         testPersonnelForm                                                                                     100         0         
+46         testCodes                                                                                             100         0         
