@@ -1,6 +1,0 @@
-[jenkins] 
-Jenkins_Server ansible_host=18.222.69.160 ansible_ssh_user=ubuntu ansible_ssh_private_key_file=/home/ubuntu/proj2/ec2.key
-[itrust] 
-iTrust_Server ansible_host=18.222.48.237 ansible_ssh_user=ubuntu ansible_ssh_private_key_file=/home/ubuntu/proj2/ec2.key
-[checkbox] 
-Checkbox_Server ansible_host=18.222.75.220 ansible_ssh_user=ubuntu ansible_ssh_private_key_file=/home/ubuntu/proj2/ec2.key

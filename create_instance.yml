@@ -1,5 +1,10 @@
 ---
 - hosts: localhost
   connection: local
+  pre_tasks:
+  - name: "Checking host file"
+    stat:
+      path: ./hosts
+    register: output
   roles:
-    - create_instances
+    - { role: create_instances, when: not output.stat.exists  }

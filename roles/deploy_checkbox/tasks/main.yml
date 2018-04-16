@@ -1,6 +1,3 @@
-- include_vars: mongoVars.yml
-- include_vars: paths.yml
-
 - name: Install required packages
   apt:
     pkg: '{{item}}'
@@ -12,17 +9,14 @@
     - nodejs
     - nodejs-legacy
     - nginx
-    - mongodb
-    - python3-pip
-    - python-pip
 
 - name: Ensuring previous clone isn't present
   file:
     state: absent
-    path: '{{checkbox_path}}'
+    path: '{{checkbox_app_path}}'
 
 - name: Cloning Github repo
-  git: repo=https://github.com/chrisparnin/checkbox.io.git clone=yes dest={{checkbox_path}}
+  git: repo=https://github.com/balaramesh/checkbox.io.git clone=yes dest={{checkbox_app_path}}
 
 - name: Install Forever node package
   npm:
@@ -33,59 +27,21 @@
 
 - name: Install required node packages
   npm:
-    path: "{{checkbox_path}}/server-side/site"
+    path: "{{checkbox_app_path}}/server-side/site"
 
 - name: Copy nginx.conf from repo /etc/nginx
-  copy: remote_src=true src="{{checkbox_path}}/local-conf/nginx.conf" dest=/etc/nginx/nginx.conf
+  copy: remote_src=true src="{{checkbox_app_path}}/local-conf/nginx.conf" dest=/etc/nginx/nginx.conf
   become: yes
-# - name: Copy nginx.conf from repo to host
-#   fetch:
-#     src: "{{checkbox_path}}/local-conf/nginx.conf"
-#     dest: "/tmp/nginx.conf"
-#     flat: yes
-#
-# - name: Copy nginx.conf from host to remote /etc/nginx
-#   copy:
-#     src: "/tmp/nginx.conf"
-#     dest: /etc/nginx/nginx.conf
-#   become: yes
 
 - name: Modify the server root in the default file
   replace:
-    path: "{{checkbox_path}}/local-conf/default"
+    path: "{{checkbox_app_path}}/local-conf/default"
     regexp: "root (.)+;"
-    replace: "root {{checkbox_path}}/public_html/;"
-
-# - name: Fetch default file from repo to host
-#   fetch:
-#     src: "{{checkbox_path}}/local-conf/default"
-#     dest: "/tmp/default"
-#     flat: yes
-#
-# - name: Copy default file to remote nginx folder
-#   copy:
-#     src: "/tmp/default"
-#     dest: /etc/nginx/sites-available/default
-#   become: yes
+    replace: "root {{checkbox_app_path}}/public_html/;"
 
 - name: Copy default file from repo to nginx folder
-  copy: remote_src=true src="{{checkbox_path}}/local-conf/default" dest=/etc/nginx/sites-available/default
+  copy: remote_src=true src="{{checkbox_app_path}}/local-conf/default" dest=/etc/nginx/sites-available/default
   become: yes
-
-
-- name: Install python package for mongodb
-  pip:
-    name: pymongo
-    state: present
-  become: yes
-
-- name: Add a new mongodb user
-  mongodb_user:
-    database: admin
-    name: "{{mongo_user}}"
-    password: "{{mongo_password}}"
-    state: present
-
 
 - name: Restart nginx
   service:
@@ -93,17 +49,11 @@
    state: restarted
   become: yes
 
-- name: Restart mongoDb
-  service:
-   name: mongodb
-   state: restarted
-  become: yes
-
 - name: Running server.js
-  shell:  cd {{checkbox_path}}/server-side/site/; forever stopall; forever start server.js
+  shell:  cd {{checkbox_app_path}}/server-side/site/; forever stopall; forever start server.js
   environment:
     MONGO_PORT: "{{mongo_port}}"
-    MONGO_IP: "{{mongo_ip}}"
+    MONGO_IP: "{{hostvars[groups['jenkins'][0]]['inventory_hostname'] }}"
     MONGO_USER: "{{mongo_user}}"
     MONGO_PASSWORD: "{{mongo_password}}"
     MAIL_USER: "{{mail_user}}"

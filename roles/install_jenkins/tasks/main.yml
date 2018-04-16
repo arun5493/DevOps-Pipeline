@@ -1,3 +1,24 @@
+- name: Open Jenkins port
+  ufw:
+    rule: allow
+    port: '8080'
+    state: enabled
+  become: yes
+
+- name: Open SSH port
+  ufw:
+    rule: allow
+    port: '22'
+    state: enabled
+  become: yes
+
+- name: Open Mongo port
+  ufw:
+    rule: allow
+    port: 27017
+    state: enabled
+  become: yes
+
 - name: Add Jenkins Repository Key
   apt_key:
     url: "https://pkg.jenkins.io/debian/jenkins-ci.org.key"
@@ -18,26 +39,32 @@
    update_cache: yes
    state: present
   become: yes
-
 - name: Install packages
-  apt: pkg={{ item }} state=present update_cache=true
+  apt: pkg={{ item }} state=present update_cache=yes
   with_items:
    - git
    - openjdk-8-jdk
    - ansible
+   - python-pip
   become: yes
 
+- name: Install ansible modules
+  become: yes
+  pip: name={{ item }}
+  with_items:
+   - python-jenkins
+   - lxml
+   
 - name: java version set
   become: yes
   shell: update-alternatives --config java
 
 - name: Install Jenkins
-  apt:
-    name: jenkins
-    state: present
-    update_cache: yes
+  apt:	
+    name: jenkins	
+    state: present	
+    update_cache: yes	
   become: yes
-  register: jenkins_install
 
 - name: Replace the config.xml file
   template:
@@ -62,7 +89,7 @@
 - name: Defaulting setup wizard to false
   lineinfile:
    path: /etc/default/jenkins
-   line: JAVA_ARGS="-Djenkins.install.runSetupWizard=false"
+   line: JAVA_ARGS="${JAVA_ARGS} -Djenkins.install.runSetupWizard=false -Dhudson.model.DirectoryBrowserSupport.CSP=\"\""
    state: present
   become: yes
 
@@ -74,15 +101,13 @@
 
 - name: Wait for Jenkins to start up
   uri:
-    url: "http://{{inventory_hostname}}:8080/cli/"
+    url: "http://{{hostvars[groups['jenkins'][0]]['inventory_hostname'] }}:8080/"
     status_code: 200
-    timeout: 5
   register: jenkins_service_status
   retries: 60
   delay: 5
-  until: >
-     'status' in jenkins_service_status and
-     jenkins_service_status['status'] == 200
+  until: jenkins_service_status.status == 200
+
 
 - name: Install Jenkin Plugins
   jenkins_plugin:
@@ -90,10 +115,11 @@
     params:
     url_username: "{{jenkins_url_username}}"
     url_password: "{{jenkins_url_password}}"
-    url: "http://{{inventory_hostname}}:8080"
+    url: "http://{{hostvars[groups['jenkins'][0]]['inventory_hostname'] }}:8080"
     validate_certs: no
   with_items:
     - git
+    - github
     - postbuildscript
     - postbuild-task
     - ws-cleanup
@@ -107,19 +133,16 @@
 
 - name: Wait for Jenkins to start up
   uri:
-    url: "http://{{inventory_hostname}}:8080/cli/"
+    url: "http://{{hostvars[groups['jenkins'][0]]['inventory_hostname'] }}:8080/"
     status_code: 200
-    timeout: 5
   register: jenkins_service_status
   retries: 60
   delay: 5
-  until: >
-     'status' in jenkins_service_status and
-     jenkins_service_status['status'] == 200
+  until: jenkins_service_status.status == 200
 
 - name: Fetching the jenkins jar from jenkins server
   get_url:
-   url: http://{{inventory_hostname}}:8080/jnlpJars/jenkins-cli.jar
+   url: http://{{hostvars[groups['jenkins'][0]]['inventory_hostname'] }}:8080/jnlpJars/jenkins-cli.jar
    dest: /tmp/
   become: yes
 
@@ -145,3 +168,11 @@
    owner: jenkins
    group: jenkins
   become: yes
+
+- name: Adding jenkins as sudo user
+  lineinfile:
+   path: /etc/sudoers
+   line: "jenkins        ALL=(ALL)       NOPASSWD: ALL"
+   state: present
+  become: yes
+  

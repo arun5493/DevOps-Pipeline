@@ -2,6 +2,10 @@
 - include: create_instance.yml
 - include: install_dependencies.yml
 - include: install_jenkins.yml
-- include: build_checkbox.yml
+- include: start_databases.yml
 - include: build_iTrust.yml
+- include: build_checkbox.yml
+- include: build_canary.yml
+- include: build_proxy.yml
+- include: monitor_itrust.yml
 ...

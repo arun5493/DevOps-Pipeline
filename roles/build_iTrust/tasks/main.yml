@@ -1,34 +1,36 @@
 - name: Accept new ssh fingerprints for iTrust
-  shell: ssh-keyscan -H {{ hostvars[groups['itrust'][0]].inventory_hostname  }} >> /var/lib/jenkins/.ssh/known_hosts
+  shell: ssh-keyscan -H {{ hostvars[groups['itrust1'][0]].inventory_hostname    }} >> /var/lib/jenkins/.ssh/known_hosts
   become: yes
 
-- name: Set MySQL root password before installing
+- name: Accept new ssh fingerprints for iTrust
+  shell: ssh-keyscan -H {{ hostvars[groups['itrust2'][0]].inventory_hostname    }} >> /var/lib/jenkins/.ssh/known_hosts
   become: yes
-  debconf: name='mysql-server' question='mysql-server/root_password' value='{{mysql_password | quote}}' vtype='password'
 
-- name: Confirm MySQL root password before installing
+- name: Accept new ssh fingerprints for iTrust
+  shell: ssh-keyscan -H {{ hostvars[groups['itrust3'][0]].inventory_hostname    }} >> /var/lib/jenkins/.ssh/known_hosts
   become: yes
-  debconf: name='mysql-server' question='mysql-server/root_password_again' value='{{mysql_password | quote}}' vtype='password'
+
+- name: Accept new ssh fingerprints for iTrust
+  shell: ssh-keyscan -H {{ hostvars[groups['itrust4'][0]].inventory_hostname    }} >> /var/lib/jenkins/.ssh/known_hosts
+  become: yes
+
+- name: Accept new ssh fingerprints for iTrust
+  shell: ssh-keyscan -H {{ hostvars[groups['itrust5'][0]].inventory_hostname    }} >> /var/lib/jenkins/.ssh/known_hosts
+  become: yes
 
 - name: Install packages for iTrust
   apt: pkg={{ item }} state=present
   with_items:
-   - mysql-server
    - maven
   become: yes
 
-- name: "Skip grant tables"
-  template: src=mysqld.cnf.template dest=/etc/mysql/mysql.conf.d/mysqld.cnf
-  become: yes
-
-- name: Restart MySQL after installation
-  service:
-   name: mysql
-   state: started
-
-- name: Wait for MySQL to start on default port
-  wait_for:
-   port: "{{mysql_default_port}}"
+- name: Adding Git hook for iTrust2
+  github_hooks:
+    action: create
+    hookurl: "http://{{hostvars[groups['jenkins'][0]]['inventory_hostname'] }}:8080/github-webhook/"
+    user: '{{ github_username }}'
+    oauthkey: '{{ github_token }}'
+    repo: https://api.github.ncsu.edu/repos/vmani2/iTrust2-v2
 
 - name: Copy the itrust config file
   template:
@@ -36,19 +38,39 @@
     dest: "{{project_path}}/roles/build_iTrust/templates/itrust_config.xml"
   become: yes
 
-- name: Fetch from jenkins server to local machine
+- name: Fetch itrust_config from jenkins server to local machine
   fetch:
     src: "{{project_path}}/roles/build_iTrust/templates/itrust_config.xml"
     dest: "{{project_path}}/roles/build_iTrust/templates/"
     flat: yes
 
+- name: Copy the credentials config file
+  template:
+    src: credentials.xml.j2
+    dest: "{{project_path}}/roles/build_iTrust/templates/credentials.xml"
+  become: yes
+
+- name: Fetch credentials file from jenkins server to local machine
+  fetch:
+    src: "{{project_path}}/roles/build_iTrust/templates/credentials.xml"
+    dest: "{{project_path}}/roles/build_iTrust/templates/"
+    flat: yes
+
+- name: Adding credentials to jenkins
+  shell: "cat {{project_path}}/roles/build_iTrust/templates/credentials.xml | java -jar /tmp/jenkins-cli.jar -s http://{{hostvars[groups['jenkins'][0]]['inventory_hostname'] }}:8080/ create-credentials-by-xml \"SystemCredentialsProvider::SystemContextResolver::jenkins\" \"(global)\" --username {{jenkins_url_username}} --password {{jenkins_url_password}}"
+
+- name: Check if job exists
+  shell: "java -jar /tmp/jenkins-cli.jar -s http://{{hostvars[groups['jenkins'][0]]['inventory_hostname'] }}:8080/ list-jobs --username {{jenkins_url_username}} --password {{jenkins_url_password}}"
+  register: jenkins_jobs
+
 - jenkins_job:
    config: "{{ lookup('file', '../templates/itrust_config.xml') }}"
    name: iTrust_Build
    password: "{{jenkins_url_password}}"
-   url: http://{{inventory_hostname}}:8080
+   url: http://{{hostvars[groups['jenkins'][0]]['inventory_hostname'] }}:8080
    user: "{{jenkins_url_username}}"
+  when: jenkins_jobs.stdout.find('iTrust_Build')==-1
 
 - name: Invoking iTrust build
   become: yes
-  shell: "java -jar /tmp/jenkins-cli.jar -s http://{{inventory_hostname}}:8080/ build iTrust_Build --username {{jenkins_url_username}} --password {{jenkins_url_password}} "
+  shell: "java -jar /tmp/jenkins-cli.jar -s http://{{hostvars[groups['jenkins'][0]]['inventory_hostname'] }}:8080/ build iTrust_Build --username {{jenkins_url_username}} --password {{jenkins_url_password}} "

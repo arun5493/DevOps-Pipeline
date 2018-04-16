@@ -1,0 +1,89 @@
+- name: Accept new ssh fingerprints for iTrust
+  shell: ssh-keyscan -H {{ hostvars[groups['itrust1'][0]].inventory_hostname    }} >> /home/ubuntu/.ssh/known_hosts
+  become: yes
+
+- name: Accept new ssh fingerprints for iTrust
+  shell: ssh-keyscan -H {{ hostvars[groups['itrust2'][0]].inventory_hostname    }} >> /home/ubuntu/.ssh/known_hosts
+  become: yes
+
+- name: Accept new ssh fingerprints for iTrust
+  shell: ssh-keyscan -H {{ hostvars[groups['itrust3'][0]].inventory_hostname    }} >> /home/ubuntu/.ssh/known_hosts
+  become: yes
+
+- name: Accept new ssh fingerprints for iTrust
+  shell: ssh-keyscan -H {{ hostvars[groups['itrust4'][0]].inventory_hostname    }} >> /home/ubuntu/.ssh/known_hosts
+  become: yes
+
+- name: Accept new ssh fingerprints for iTrust
+  shell: ssh-keyscan -H {{ hostvars[groups['itrust5'][0]].inventory_hostname    }} >> /home/ubuntu/.ssh/known_hosts
+  become: yes
+
+- name: Open Monitor socket port
+  ufw:
+    rule: allow
+    port: '3000'
+    state: enabled
+  become: yes
+
+- name: Open Monitor App port
+  ufw:
+    rule: allow
+    port: '3001'
+    state: enabled
+  become: yes
+
+- name: Install packages
+  apt: pkg={{ item }} state=present update_cache=yes
+  with_items:
+   - npm
+   - nodejs
+   - nodejs-legacy
+  become: yes
+
+- name: Install http-server node package
+  npm:
+    name: http-server
+    state: present
+    global: yes
+  become: yes
+
+- name: Install Forever node package
+  npm:
+    name: forever
+    state: present
+    global: yes
+  become: yes
+
+- name: Cloning Github repo
+  git: repo=https://github.com/vivekmani28/Monitoring.git clone=yes dest=/home/ubuntu/Monitoring
+
+- name: Copy Key file
+  copy:
+    src: /home/ubuntu/DevOps_Project/ec2.key
+    dest: /home/ubuntu/Monitoring/ec2.key
+    owner: ubuntu
+    group: ubuntu
+    mode: 0600
+    
+- name: Install required node packages
+  npm:
+    path: "/home/ubuntu/Monitoring"
+
+- name: Replace localhost with the jenkins IP
+  replace:
+   path: "/home/ubuntu/Monitoring/www/statusModel.js"
+   regexp: 'localhost'
+   replace: "{{hostvars[groups['jenkins'][0]]['inventory_hostname'] }}"
+
+- name: Running main.js
+  shell:  cd /home/ubuntu/Monitoring; forever start main.js
+
+- name: Starting monitoring app
+  shell:  "cd /home/ubuntu/Monitoring/www; http-server -p 3001 "
+  async: 45
+  poll: 0
+
+- name: Starting monitoring app
+  shell:  "cd /home/ubuntu/Monitoring/www; http-server -p 3001 "
+  async: 45
+  poll: 0

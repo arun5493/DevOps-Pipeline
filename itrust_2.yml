@@ -9,7 +9,7 @@
 
   - name: Copy hibernate.cfg.xml to src/main/resources/ folder
     copy: remote_src=true src={{iTrust_path}}/iTrust2/src/main/java/email.properties.template dest="{{ iTrust_path }}/iTrust2/src/main/java/email.properties"
-
+  
   - name: Replace {{root_password}} with the root_password variable
     replace:
      path: "{{ iTrust_path }}/iTrust2/src/main/java/db.properties"
@@ -21,3 +21,22 @@
      path: "{{ iTrust_path }}/iTrust2/src/main/resources/hibernate.properties"
      regexp: 'hibernate.connection.password = '
      replace: "hibernate.connection.password = {{mysql_password}}"
+
+  - name: Replace from in email file
+    replace:
+     path: "{{ iTrust_path }}/iTrust2/src/main/java/email.properties"
+     regexp: 'from'
+     replace: "from {{email_from}}"
+
+  - name: Replace email_id in email file
+    replace:
+     path: "{{ iTrust_path }}/iTrust2/src/main/java/email.properties"
+     regexp: 'username'
+     replace: "username {{email_username}}"     
+
+  - name: Replace password in email file
+    replace:
+     path: "{{ iTrust_path }}/iTrust2/src/main/java/email.properties"
+     regexp: 'password'
+     replace: "password {{email_password}}"
+     
