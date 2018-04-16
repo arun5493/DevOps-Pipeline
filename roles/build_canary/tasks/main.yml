@@ -1,0 +1,46 @@
+- name: Accept new ssh fingerprints for Checkbox.io
+  shell: ssh-keyscan -H {{ hostvars[groups['canary'][0]].inventory_hostname}} >> /var/lib/jenkins/.ssh/known_hosts
+  become: yes
+
+- name: Install packages for checkbox.io
+  apt: pkg={{ item }} state=present
+  with_items:
+   - npm
+   - nodejs
+   - python-pip
+  become: yes
+
+- name: Install ansible modules
+  become: yes
+  pip: name={{ item }}
+  with_items:
+   - python-jenkins
+   - lxml
+
+- name: Copy the canary config file
+  template:
+    src: canary_config.xml.j2
+    dest: "{{project_path}}/roles/build_canary/templates/canary_config.xml"
+  become: yes
+
+- name: Fetch canary_config from jenkins server to local machine
+  fetch:
+    src: "{{project_path}}/roles/build_canary/templates/canary_config.xml"
+    dest: "{{project_path}}/roles/build_canary/templates/"
+    flat: yes
+
+- name: Check if job exists
+  shell: "java -jar /tmp/jenkins-cli.jar -s http://{{hostvars[groups['jenkins'][0]]['inventory_hostname'] }}:8080/ list-jobs --username {{jenkins_url_username}} --password {{jenkins_url_password}}"
+  register: jenkins_jobs
+
+- jenkins_job:
+   config: "{{ lookup('file', '../templates/canary_config.xml') }}"
+   name: Canary_Build
+   password: "{{jenkins_url_password}}"
+   url: http://{{inventory_hostname}}:8080
+   user: "{{jenkins_url_username}}"
+  when: jenkins_jobs.stdout.find('Canary_Build')==-1
+
+- name: Involing canary build
+  become: yes
+  shell: "java -jar /tmp/jenkins-cli.jar -s http://{{inventory_hostname}}:8080/ build Canary_Build --username {{jenkins_url_username}} --password {{jenkins_url_password}} "

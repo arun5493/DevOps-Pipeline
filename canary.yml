@@ -1,0 +1,3 @@
+- hosts: canary
+  roles:
+    - deploy_canary

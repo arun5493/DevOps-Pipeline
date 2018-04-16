@@ -1,0 +1,24 @@
+var http = require('http');
+var httpProxy = require('http-proxy');
+
+var proxy = httpProxy.createProxyServer({});
+
+var count = 1;
+
+var server = http.createServer(function(req, res) {
+	++count;
+
+	if(count%3==0)
+	{
+		proxy.web(req, res, {target: 'http://{{ hostvars[groups['canary'][0]].inventory_hostname }}'}, function(e) {
+			proxy.web(req, res, {target: 'http://{{ hostvars[groups['checkbox'][0]].inventory_hostname }}'});
+		});
+	}	
+	else
+	{
+		proxy.web(req, res, {target: 'http://{{ hostvars[groups['checkbox'][0]].inventory_hostname }}'});
+	}
+}); 
+
+server.listen('80');
+
