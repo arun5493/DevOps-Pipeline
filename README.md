@@ -38,7 +38,9 @@ ansible-playbook -i hosts main.yml --vault-password-file vault_pass.txt
 ```bash
 cd ~
 git clone https://github.ncsu.edu/ajagana/DevOps_Project.git
+cd DevOps_Project
 git checkout m3
+cd ..
 mv DevOps_Project/k8-clusterConfig k8-clusterConfig
 cd k8-clusterConfig
 ansible-playbook main.yml --vault-password-file vault_pass.txt
