@@ -106,4 +106,4 @@ Here is a [link](https://drive.google.com/file/d/14pBo8gQSNCFyoJ9uGTljv4qL4QQ1X7
 
 Here is a [link](https://youtu.be/s5EeWNARSYQ) to the screencast explaining the code and demo for infrastructure upgrade using kubernetes cluster creation.
 
-Here is a [link]() to the screencast explaining the demo for infrastructure upgrade with Redis server.
+Here is a [link](https://youtu.be/M8XgR5ohqwI) to the screencast explaining the demo for infrastructure upgrade with Redis server.
