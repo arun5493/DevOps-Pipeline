@@ -54,7 +54,10 @@ Make sure to update the ansible vault password in the vault_pass.txt file as wel
 - Role for creating new instances checks the hosts file and if hosts are already present in the file, no new instances are created, remaining roles run on the existing instances 
 
 #### Canary Release - Balasubramanian Ramesh Babu 
-
+- This required setting up a separate server for a canary version of the source code. To do this, a forked repo of the checkbox.io source code was used and minor changes were made to distinguish the canary update.
+- A single mongodb instance was required. This was achieved by installing mongodb on the Jenkins server. This also required updating the bind ip in the mongodb.conf file to 0.0.0.0
+- A proxy server was initiated and js code was written to establish a proxy mechanism. Every 3rd request is routed to the canary server. In the event of a failure of the canary server, all requests are routed to the primary checkbox server.
+- Git hooks were configured to ensure a push to the respective branch triggers the corresponding build. A push to the master branch triggers a build for the checkbox job; a push to the canary branch triggers a build for the canary job.
 TODO
 
 #### Rolling Update - Vivek Mani
@@ -77,6 +80,6 @@ TODO
 
 Here is a [link](https://youtu.be/jDjjkOPpITw) to the screencast demonstrating the playbook execution. Deployment and Rolling update part.
 
-Here is a [link]() to the screencast explaining the code for canary release along with a demo.
+Here is a [link](https://drive.google.com/file/d/14pBo8gQSNCFyoJ9uGTljv4qL4QQ1X7IN/view?usp=sharing) to the screencast explaining the code for canary release along with a demo.
 
 Here is a [link]() to the screencast explaining the code and demo for infrastructure upgrade using kubernetes and Redis server.
