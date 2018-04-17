@@ -66,8 +66,12 @@ TODO
 
 
 #### Infrastructure Upgrade - Arun Jaganathan & Krithika Sekhar
+##### Kubernetes  
+TODO  
 
-TODO
+##### Redis feature flagserver  
+- Created a Redis feature flagserver by modifying the checkbox.io code. This is done by using a flag variable, 'createFlag', which can be set to true or false to turn on or off the features of creating a survey or data study.  
+- Wrote Ansible playbooks to install Redis-server on Master and Slave instances and also to ensure mirroring can be achieved by setting protected mode to 'no'  
 
 ### Screen cast
 
