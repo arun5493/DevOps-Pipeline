@@ -58,7 +58,7 @@ Make sure to update the ansible vault password in the vault_pass.txt file as wel
 - A single mongodb instance was required. This was achieved by installing mongodb on the Jenkins server. This also required updating the bind ip in the mongodb.conf file to 0.0.0.0
 - A proxy server was initiated and js code was written to establish a proxy mechanism. Every 3rd request is routed to the canary server. In the event of a failure of the canary server, all requests are routed to the primary checkbox server.
 - Git hooks were configured to ensure a push to the respective branch triggers the corresponding build. A push to the master branch triggers a build for the checkbox job; a push to the canary branch triggers a build for the canary job.
-TODO
+
 
 #### Rolling Update - Vivek Mani
 - To achieve the rolling update strategy `serial` option is used in the deploy itrust role. The value is set to 1, which makes sure that the deployment takes place one server at a time.
