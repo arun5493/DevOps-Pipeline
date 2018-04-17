@@ -46,6 +46,19 @@ cd k8-clusterConfig
 ansible-playbook main.yml --vault-password-file vault_pass.txt
 ```
 
+
+#### Infrastructure Upgrade with Redis Feature flag service
+
+```bash
+cd ~
+git clone https://github.ncsu.edu/ajagana/DevOps_Project.git
+cd DevOps_Project
+git checkout m3
+cd ..
+mv DevOps_Project/k8-redis k8-clusterConfig
+cd k8-clusterConfig
+ansible-playbook main.yml --vault-password-file vault_pass.txt
+```
 Make sure to update the ansible vault password in the vault_pass.txt file as well as to have the ec2.key file before running the playbook.
 
 ### Report
@@ -91,4 +104,6 @@ Here is a [link](https://youtu.be/jDjjkOPpITw) to the screencast demonstrating t
 
 Here is a [link](https://drive.google.com/file/d/14pBo8gQSNCFyoJ9uGTljv4qL4QQ1X7IN/view?usp=sharing) to the screencast explaining the code for canary release along with a demo.
 
-Here is a [link](https://youtu.be/s5EeWNARSYQ) to the screencast explaining the code and demo for infrastructure upgrade using kubernetes cluster creation and Redis server.
+Here is a [link](https://youtu.be/s5EeWNARSYQ) to the screencast explaining the code and demo for infrastructure upgrade using kubernetes cluster creation.
+
+Here is a [link]() to the screencast explaining the demo for infrastructure upgrade with Redis server.
