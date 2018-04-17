@@ -52,7 +52,7 @@
   lineinfile:
     path: /tmp/redis-stable/redis.conf
     insertafter: '^slaveof'
-    line: 'slaveof <masterip> <masterport>'
+    line: "slaveof {{ hostvars[groups['k8.master'][0]].ansible_host }} 6379"
 
 # - name: ensure redis service is restarted
 #   service: 
