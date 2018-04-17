@@ -70,7 +70,13 @@ Make sure to update the ansible vault password in the vault_pass.txt file as wel
 
 #### Infrastructure Upgrade - Arun Jaganathan & Krithika Sekhar
 ##### Kubernetes  
-TODO  
+- This required creating a playbook to install Kubernetes and its dependencies on the Master and the nodes that were spawned.
+- A single instance of mongodb was installed on the master node and the container was configured to have the MONGO_IP to be the public ip of the master node.
+- A Kubernetes cluster was initialised with a master and 3 nodes.
+- A checkbox.io container was created using a Dockerfile and the corresponding container was built, pushed to the docker hub and used by Kubernetes to spawn a service, with a replication factor of 3 (uses all available nodes).
+- The service type was configured to be NodePort, in order to forward port 80. The environment variables are also set when running the service using encrypted Ansible variables.
+- The dynamically assigned NodePort is printed and used to access checkbox.io.
+- Failure of a node does not disrupt the service, as the other nodes are used to keep the replication active.
 
 ##### Redis feature flagserver  
 - Created a Redis feature flagserver by modifying the checkbox.io code. This is done by using a flag variable, 'createFlag', which can be set to true or false to turn on or off the features of creating a survey or data study.  
