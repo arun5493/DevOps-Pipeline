@@ -88,4 +88,4 @@ Here is a [link](https://youtu.be/jDjjkOPpITw) to the screencast demonstrating t
 
 Here is a [link](https://drive.google.com/file/d/14pBo8gQSNCFyoJ9uGTljv4qL4QQ1X7IN/view?usp=sharing) to the screencast explaining the code for canary release along with a demo.
 
-Here is a [link]() to the screencast explaining the code and demo for infrastructure upgrade using kubernetes and Redis server.
+Here is a [link](https://youtu.be/s5EeWNARSYQ) to the screencast explaining the code and demo for infrastructure upgrade using kubernetes cluster creation and Redis server.
