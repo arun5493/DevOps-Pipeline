@@ -1,0 +1,22 @@
+---
+- include: create_instance.yml
+- include: install_deps.yml
+- hosts: k8.master,k8.workers
+  roles:
+    - initialSetup
+
+- hosts: k8.master
+  roles:
+    - createDBInstances
+    - setupMaster
+    - redis_master_setup
+
+- hosts: k8.workers
+  roles:
+    - setupWorkers
+    - redis_slave_setup
+
+- hosts: k8.master
+  roles:
+    - setupMaster2
+
