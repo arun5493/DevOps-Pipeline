@@ -38,9 +38,10 @@ ansible-playbook -i hosts main.yml --vault-password-file vault_pass.txt
 ```bash
 cd ~
 git clone https://github.ncsu.edu/ajagana/DevOps_Project.git
-cd DevOps_Project
 git checkout m3
-TODO
+mv DevOps_Project/k8-clusterConfig k8-clusterConfig
+cd k8-clusterConfig
+ansible-playbook main.yml --vault-password-file vault_pass.txt
 ```
 
 Make sure to update the ansible vault password in the vault_pass.txt file as well as to have the ec2.key file before running the playbook.
