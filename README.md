@@ -49,9 +49,6 @@ Make sure to update the ansible vault password in the vault_pass.txt file as wel
 - The proxy server has redis installed on it and the production servers update the `production` hash on this server. The rebooting of the production server results in the removal of the corresponding production server from the `production` hash.
 - The proxy.js script routes the requests by obtaining all entries from the `production` hash and chooses the instance with lowest cpu utilisation.
 
-
-TODO
-
 ### Screen cast
 
 Here is a [link]() to the screencast demonstrating the entire pipeline, along with the special component.
