@@ -1,21 +1,5 @@
 - name: Accept new ssh fingerprints for iTrust
-  shell: ssh-keyscan -H {{ hostvars[groups['itrust1'][0]].inventory_hostname    }} >> /var/lib/jenkins/.ssh/known_hosts
-  become: yes
-
-- name: Accept new ssh fingerprints for iTrust
-  shell: ssh-keyscan -H {{ hostvars[groups['itrust2'][0]].inventory_hostname    }} >> /var/lib/jenkins/.ssh/known_hosts
-  become: yes
-
-- name: Accept new ssh fingerprints for iTrust
-  shell: ssh-keyscan -H {{ hostvars[groups['itrust3'][0]].inventory_hostname    }} >> /var/lib/jenkins/.ssh/known_hosts
-  become: yes
-
-- name: Accept new ssh fingerprints for iTrust
-  shell: ssh-keyscan -H {{ hostvars[groups['itrust4'][0]].inventory_hostname    }} >> /var/lib/jenkins/.ssh/known_hosts
-  become: yes
-
-- name: Accept new ssh fingerprints for iTrust
-  shell: ssh-keyscan -H {{ hostvars[groups['itrust5'][0]].inventory_hostname    }} >> /var/lib/jenkins/.ssh/known_hosts
+  shell: ssh-keyscan -H {{ hostvars[groups['iTrust'][0]].inventory_hostname    }} >> /var/lib/jenkins/.ssh/known_hosts
   become: yes
 
 - name: Install packages for iTrust

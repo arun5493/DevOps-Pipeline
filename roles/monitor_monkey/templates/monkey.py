@@ -6,13 +6,12 @@ import subprocess
 from Naked.toolshed.shell import execute_js
 import datetime
 threshold = 90
-email_id = "checkbox@gmail.com"
 reboot_command = "sudo reboot now"
 cpu_util_list = []
 cpu_util_list.append(0)
 cpu_util_list.append(0)
 cpu_util_list.append(0)
-file = open("log","a")
+file = open("/home/ubuntu/Monitor/log","a")
 host_ip = subprocess.check_output("dig +short myip.opendns.com @resolver1.opendns.com", shell=True).rstrip('\n')
 while True:
     cpu_usage = int(math.floor(psutil.cpu_percent(interval=1)))

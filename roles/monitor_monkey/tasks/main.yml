@@ -17,13 +17,6 @@
     mode: 0777
   become: yes
 
-- name: Create the postfix directory
-  file:
-    path: /etc/postfix
-    state: directory
-    mode: 0777
-  become: yes
-
 - name: Copy monkey startup script
   template:
     src: rc.local.j2
@@ -40,10 +33,6 @@
 
 - name: Installing python-dev
   apt: pkg=python-dev state=present update_cache=true
-  become: yes
-
-- name: Installing mailutils
-  apt: pkg=mailutils state=present update_cache=true
   become: yes
 
 - name: Installing psutil
@@ -83,12 +72,6 @@
     src: redis_server.json.j2
     dest: /home/ubuntu/Monitor/redis_server.json
 
-- name: Copying SMTP server configuration
-  template:
-    src: main.cf
-    dest: /etc/postfix/main.cf
-  become: yes
-
 - name: npm install
   shell: npm install 
   args:
@@ -96,5 +79,5 @@
   become: yes
 
 - name: Run monitor script
-  shell: nohup python /home/ubuntu/Monitor/monkey.py &
+  shell: python /home/ubuntu/Monitor/monkey.py &
   become: yes
