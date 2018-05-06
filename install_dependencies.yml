@@ -1,5 +1,5 @@
 ---
-- hosts: jenkins,itrust1,itrust2,itrust3,itrust4,itrust5,checkbox,canary,proxy
+- hosts: jenkins,iTrust,checkbox,proxy
   gather_facts: no
   roles:
     - install_dependencies

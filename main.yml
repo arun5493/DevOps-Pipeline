@@ -6,7 +6,6 @@
 - include: build_iTrust.yml
 - include: build_checkbox.yml
 - include: build_proxy.yml
-- include: monitor_itrust.yml
 - include: monitor_monkey.yml
 - include: run_proxy.yml
 ...

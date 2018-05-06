@@ -62,6 +62,16 @@
 
 - name: Adding host for checkbox
   add_host:
+   hostname: "{{ec2.instances[0].public_ip}}"
+   ansible_host: "{{ec2.instances[0].public_ip}}"
+   groupname: checkbox
+   ansible_ssh_user: ubuntu
+   ansible_ssh_private_key_file: "{{project_path}}/ec2.key"
+- debug:
+   msg: "Checkbox server IP address {{ ec2.instances[0].public_ip }}"
+
+- name: Adding host for checkbox
+  add_host:
    hostname: "{{ec2.instances[1].public_ip}}"
    ansible_host: "{{ec2.instances[1].public_ip}}"
    groupname: checkbox
@@ -70,33 +80,34 @@
 - debug:
    msg: "Checkbox server IP address {{ ec2.instances[1].public_ip }}"
 
-- name: Adding host for checkbox
+- name: Adding host for proxy server
   add_host:
    hostname: "{{ec2.instances[2].public_ip}}"
    ansible_host: "{{ec2.instances[2].public_ip}}"
-   groupname: checkbox
-   ansible_ssh_user: ubuntu
-   ansible_ssh_private_key_file: "{{project_path}}/ec2.key"
-- debug:
-   msg: "Checkbox server IP address {{ ec2.instances[2].public_ip }}"
-
-- name: Adding host for proxy server
-  add_host:
-   hostname: "{{ec2.instances[3].public_ip}}"
-   ansible_host: "{{ec2.instances[3].public_ip}}"
    groupname: proxy
    ansible_ssh_user: ubuntu
    ansible_ssh_private_key_file: "{{project_path}}/ec2.key"
 - debug:
-   msg: "Proxy server IP address {{ ec2.instances[3].public_ip }}"
+   msg: "Proxy server IP address {{ ec2.instances[2].public_ip }}"
+
+- name: Adding host for iTrust
+  add_host:
+   hostname: "{{ec2.instances[3].public_ip}}"
+   ansible_host: "{{ec2.instances[3].public_ip}}"
+   groupname: checkbox
+   ansible_ssh_user: ubuntu
+   ansible_ssh_private_key_file: "{{project_path}}/ec2.key"
+- debug:
+   msg: "Checkbox server IP address {{ ec2.instances[3].public_ip }
 
 - local_action: file path={{project_path}}/hosts state=absent
   ignore_errors: yes
 - local_action: file path=./hosts state=touch
 - local_action: lineinfile line="[jenkins] \n{{jenkins_instance.instances[0].public_ip}} ansible_host={{ jenkins_instance.instances[0].public_ip }} ansible_ssh_user=ubuntu ansible_ssh_private_key_file={{project_path}}/ec2.key" insertafter=EOF dest={{project_path}}/hosts
-- local_action: lineinfile line="[checkbox] \n{{ec2.instances[1].public_ip}} ansible_host={{ ec2.instances[1].public_ip }} ansible_ssh_user=ubuntu ansible_ssh_private_key_file={{project_path}}/ec2.key" insertafter=EOF dest={{project_path}}/hosts
-- local_action: lineinfile line="{{ec2.instances[2].public_ip}} ansible_host={{ ec2.instances[2].public_ip }} ansible_ssh_user=ubuntu ansible_ssh_private_key_file={{project_path}}/ec2.key" insertafter=EOF dest={{project_path}}/hosts
-- local_action: lineinfile line="[proxy] \n{{ec2.instances[3].public_ip}} ansible_host={{ ec2.instances[3].public_ip }} ansible_ssh_user=ubuntu ansible_ssh_private_key_file={{project_path}}/ec2.key" insertafter=EOF dest={{project_path}}/hosts
+- local_action: lineinfile line="[checkbox] \n{{ec2.instances[0].public_ip}} ansible_host={{ ec2.instances[0].public_ip }} ansible_ssh_user=ubuntu ansible_ssh_private_key_file={{project_path}}/ec2.key" insertafter=EOF dest={{project_path}}/hosts
+- local_action: lineinfile line="{{ec2.instances[1].public_ip}} ansible_host={{ ec2.instances[1].public_ip }} ansible_ssh_user=ubuntu ansible_ssh_private_key_file={{project_path}}/ec2.key" insertafter=EOF dest={{project_path}}/hosts
+- local_action: lineinfile line="[proxy] \n{{ec2.instances[2].public_ip}} ansible_host={{ ec2.instances[2].public_ip }} ansible_ssh_user=ubuntu ansible_ssh_private_key_file={{project_path}}/ec2.key" insertafter=EOF dest={{project_path}}/hosts
+- local_action: lineinfile line="[iTrust] \n{{ec2.instances[3].public_ip}} ansible_host={{ ec2.instances[3].public_ip }} ansible_ssh_user=ubuntu ansible_ssh_private_key_file={{project_path}}/ec2.key" insertafter=EOF dest={{project_path}}/hosts
 
 - name: Waiting for port 22 to become available
   wait_for:
