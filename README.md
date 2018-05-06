@@ -51,4 +51,4 @@ Make sure to update the ansible vault password in the vault_pass.txt file as wel
 
 ### Screen cast
 
-Here is a [link]() to the screencast demonstrating the entire pipeline, along with the special component.
+Here is a [link](https://www.youtube.com/watch?v=eKs5PW8gMPg) to the screencast demonstrating the entire pipeline, along with the special component.
