@@ -1,0 +1,4 @@
+- hosts: checkbox
+  gather_facts: no
+  roles:
+    - monitor_monkey

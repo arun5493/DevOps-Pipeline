@@ -12,4 +12,6 @@ def strategy = new hudson.security.FullControlOnceLoggedInAuthorizationStrategy(
 strategy.setAllowAnonymousRead(true)
 instance.setAuthorizationStrategy(strategy)
 
+hudson.model.DirectoryBrowserSupport.CSP = ""
+
 instance.save()

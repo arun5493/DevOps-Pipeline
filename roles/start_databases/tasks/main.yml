@@ -1,0 +1,68 @@
+- name: Open MySQL port
+  ufw:
+    rule: allow
+    port: '3306'
+    state: enabled
+  become: yes
+
+- name: Set MySQL root password before installing
+  become: yes
+  debconf: name='mysql-server' question='mysql-server/root_password' value='{{mysql_password | quote}}' vtype='password'
+
+- name: Confirm MySQL root password before installing
+  become: yes
+  debconf: name='mysql-server' question='mysql-server/root_password_again' value='{{mysql_password | quote}}' vtype='password'
+
+- name: Install My SQL for iTrust
+  apt: pkg={{ item }} state=present
+  with_items:
+   - mysql-server
+   - mongodb
+   - python-pip
+  become: yes
+
+- name: "Skip grant tables"
+  template: src=mysqld.cnf.template dest=/etc/mysql/mysql.conf.d/mysqld.cnf
+  become: yes
+
+- name: Restart MySQL after installation
+  service:
+   name: mysql
+   state: restarted
+  become: yes
+
+- name: Wait for MySQL to start on default port
+  wait_for:
+   port: "{{mysql_default_port}}"
+
+- name: Install python package for mongodb
+  pip:
+    name: pymongo
+    state: present
+  become: yes
+
+- name: Add a new mongodb user
+  mongodb_user:
+    database: admin
+    name: "{{mongo_user}}"
+    password: "{{mongo_password}}"
+    state: present
+
+- name: Restart mongoDb
+  service:
+   name: mongodb
+   state: restarted
+  become: yes
+
+- name: Update the bind address for mongodb
+  replace:
+    path: /etc/mongodb.conf
+    regexp: "bind_ip = 127.0.0.1"
+    replace: "bind_ip = 0.0.0.0"
+  become: yes
+
+- name: Restart mongoDb
+  service:
+   name: mongodb
+   state: restarted
+  become: yes

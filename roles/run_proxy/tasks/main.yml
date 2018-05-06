@@ -1,0 +1,10 @@
+- name: Run npm install
+  shell: npm install
+  args:
+    chdir: /home/ubuntu/Proxy/
+  become: yes
+
+- name: Run nodejs for proxy
+  shell: cd /home/ubuntu/Proxy; forever stopall; forever start proxy.js
+  become: yes
+

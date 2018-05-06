@@ -1,0 +1,100 @@
+- name: Installing nodeJs
+  apt: pkg=nodejs state=present update_cache=true
+  become: yes
+
+- name: Installing npm
+  apt: pkg=npm state=present update_cache=true
+  become: yes
+
+- name: Installing unzip
+  apt: pkg=unzip state=present update_cache=true
+  become: yes
+
+- name: Create the Monitor directory
+  file:
+    path: /home/ubuntu/Monitor
+    state: directory
+    mode: 0777
+  become: yes
+
+- name: Create the postfix directory
+  file:
+    path: /etc/postfix
+    state: directory
+    mode: 0777
+  become: yes
+
+- name: Copy monkey startup script
+  template:
+    src: rc.local.j2
+    dest: /etc/rc.local
+  become: yes
+
+- name: Install forever
+  npm: name=forever global=yes state=latest
+  become: yes
+
+- name: Installing python-pip
+  apt: pkg=python-pip state=present update_cache=true
+  become: yes
+
+- name: Installing python-dev
+  apt: pkg=python-dev state=present update_cache=true
+  become: yes
+
+- name: Installing mailutils
+  apt: pkg=mailutils state=present update_cache=true
+  become: yes
+
+- name: Installing psutil
+  command: pip install psutil
+  become: yes
+
+- name: Installing Naked
+  command: pip install Naked
+  become: yes
+
+- name: Installing stress
+  apt: pkg=stress state=present update_cache=true
+  become: yes
+
+- name: Copy the source files
+  template:
+    src: monkey.py
+    dest: /home/ubuntu/Monitor/monkey.py
+
+- name: Copy the source files
+  template:
+    src: addToRedis.js
+    dest: /home/ubuntu/Monitor/addToRedis.js
+
+- name: Copy the source files
+  template:
+    src: removeFromRedis.js
+    dest: /home/ubuntu/Monitor/removeFromRedis.js
+
+- name: Copy the source files
+  template:
+    src: package.json
+    dest: /home/ubuntu/Monitor/package.json
+
+- name: Copy redis_server.json.j2
+  template:
+    src: redis_server.json.j2
+    dest: /home/ubuntu/Monitor/redis_server.json
+
+- name: Copying SMTP server configuration
+  template:
+    src: main.cf
+    dest: /etc/postfix/main.cf
+  become: yes
+
+- name: npm install
+  shell: npm install 
+  args:
+    chdir: /home/ubuntu/Monitor/
+  become: yes
+
+- name: Run monitor script
+  shell: nohup python /home/ubuntu/Monitor/monkey.py &
+  become: yes

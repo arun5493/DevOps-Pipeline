@@ -1,4 +1,0 @@
-- hosts: jenkins
-  gather_facts: no
-  roles:
-    - build_iTrust

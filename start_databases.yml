@@ -1,0 +1,4 @@
+- hosts: jenkins
+  gather_facts: no
+  roles:
+    - start_databases

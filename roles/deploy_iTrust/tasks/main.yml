@@ -2,7 +2,8 @@
 - include_vars: credentials.yml
 - include_vars: paths.yml
 
-- debug: msg= "the value of github_username is {{ github_username }}"
+- name: Stopping running instance of iTrust2 if already present
+  shell: "ps -ef | grep jetty | grep -v grep | awk {'print $2'} | xargs kill -9"
 
 - name: Install Git
   become: yes
@@ -15,42 +16,19 @@
 
 - name: Cloning iTrust Github repo
   git:
-    repo: https://{{ github_username | urlencode }}:{{ github_password}}@github.ncsu.edu/engr-csc326-staff/iTrust2-v2.git
+    repo: https://{{ github_username | urlencode }}:{{ github_password}}@github.ncsu.edu/vmani2/iTrust2-v2.git
     clone: yes
     dest: "{{ home_path }}{{ iTrust_path }}"
-
-- name: Add Oracle Java Repository
-  become: yes
-  apt_repository: repo='ppa:webupd8team/java'
-
-- name: Accept Java 8 License
-  become: yes
-  debconf: name='oracle-java8-installer' question='shared/accepted-oracle-license-v1-1' value='true' vtype='select'
 
 - name: Install Oracle Java 8
   become: yes
   apt: name={{item}} state=latest
   with_items:
-    - oracle-java8-installer
-    - ca-certificates
-    - oracle-java8-set-default
+    - openjdk-8-jdk
 
 - name: Install Maven
   become: yes
   apt: pkg=maven state=present update_cache=true cache_valid_time=1200
-
-- name: Set MySQL root password before installing
-  become: yes
-  debconf: name='mysql-server' question='mysql-server/root_password' value='{{root_password | quote}}' vtype='password'
-
-- name: Confirm MySQL root password before installing
-  become: yes
-  debconf: name='mysql-server' question='mysql-server/root_password_again' value='{{root_password | quote}}' vtype='password'
-
-- name: Install mysql-server
-  become: yes
-  apt: pkg=mysql-server state=present update_cache=true cache_valid_time=1200
-
 
 - name: Create db.properties file from db.properties.template
   copy: remote_src=true src={{iTrust_path}}/iTrust2/src/main/java/db.properties.template dest="{{ home_path }}{{ iTrust_path }}/iTrust2/src/main/java/db.properties"
@@ -67,34 +45,47 @@
    regexp: 'password'
    replace: "password {{root_password}}"
 
+- name: Replace localhost with the my_SQL IP
+  replace:
+   path: "{{ iTrust_path }}/iTrust2/src/main/java/db.properties"
+   regexp: 'localhost'
+   replace: "{{hostvars[groups['jenkins'][0]]['inventory_hostname'] }}"
+
+- name: Replace localhost with the my_SQL IP
+  replace:
+   path: "{{ iTrust_path }}/iTrust2/src/main/resources/hibernate.properties"
+   regexp: 'localhost'
+   replace: "{{hostvars[groups['jenkins'][0]]['inventory_hostname'] }}"
+
 - name: Replace {{root_db_password}} with the root_password variable
   replace:
    path: "{{ iTrust_path }}/iTrust2/src/main/resources/hibernate.properties"
    regexp: 'hibernate.connection.password = '
    replace: "hibernate.connection.password = {{root_password}}"
 
-- name: "Skip grant tables"
-  template: src=mysqld.cnf.template dest={{mysql_location}}/mysqld.cnf
-  become: yes
+- name: Replace from in email file
+  replace:
+   path: "{{ iTrust_path }}/iTrust2/src/main/java/email.properties"
+   regexp: 'from'
+   replace: "from {{email_from}}"
 
-- name: "Restart mysql service"
-  service: name=mysql state=restarted
-  become: yes
+- name: Replace email_id in email file
+  replace:
+   path: "{{ iTrust_path }}/iTrust2/src/main/java/email.properties"
+   regexp: 'username'
+   replace: "username {{email_username}}"     
 
-- name: Wait for mysql to come up
-  wait_for: 
-   port: 3306
-
-- name: Creating the sample tables
-  shell: mvn process-test-classes
-  args:
-   chdir: "{{ iTrust_path }}/iTrust2"
-
-- name: Wait for application to start up
-  pause:
-   seconds: 45
-
+- name: Replace password in email file
+  replace:
+   path: "{{ iTrust_path }}/iTrust2/src/main/java/email.properties"
+   regexp: 'password'
+   replace: "password {{email_password}}"
+     
 - name: Starting the application
   shell: nohup mvn jetty:run &
   args:
    chdir: "{{ iTrust_path }}/iTrust2"
+
+- name: Wait for application to come up
+  wait_for:
+   port: 8080

@@ -1,0 +1,25 @@
+#!/bin/sh -e
+#
+# rc.local
+#
+# This script is executed at the end of each multiuser runlevel.
+# Make sure that the script will "exit 0" on success or any other
+# value on error.
+#
+# In order to enable or disable this script just change the execution
+# bits.
+#
+# By default this script does nothing.
+export MONGO_PORT="{{mongo_port}}"
+export MONGO_IP="{{hostvars[groups['jenkins'][0]]['inventory_hostname'] }}"
+export MONGO_USER="{{mongo_user}}"
+export MONGO_PASSWORD="{{mongo_password}}"
+export MAIL_USER="{{email_username}}"
+export MAIL_PASSWORD="{{email_password}}"
+export MAIL_SMTP="{{email_smtp}}"
+cd /home/ubuntu/checkbox.io/server-side/site/
+forever stopall
+forever start server.js
+python /home/ubuntu/Monitor/monkey.py &
+
+exit 0

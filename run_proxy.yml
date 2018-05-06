@@ -1,0 +1,4 @@
+- hosts: proxy
+  gather_facts: no
+  roles:
+    - run_proxy

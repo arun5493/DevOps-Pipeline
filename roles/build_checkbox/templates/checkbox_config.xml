@@ -1,13 +1,13 @@
-<?xml version='1.0' encoding='UTF-8'?>
+<?xml version='1.1' encoding='UTF-8'?>
 <project>
   <description>Build for deploying checkbox</description>
   <keepDependencies>false</keepDependencies>
   <properties/>
-  <scm class="hudson.plugins.git.GitSCM" plugin="git@3.7.0">
+  <scm class="hudson.plugins.git.GitSCM" plugin="git@3.8.0">
     <configVersion>2</configVersion>
     <userRemoteConfigs>
       <hudson.plugins.git.UserRemoteConfig>
-        <url>https://github.com/chrisparnin/checkbox.io.git</url>
+        <url>https://github.com/balaramesh/checkbox.io.git</url>
       </hudson.plugins.git.UserRemoteConfig>
     </userRemoteConfigs>
     <branches>
@@ -23,12 +23,16 @@
   <disabled>false</disabled>
   <blockBuildWhenDownstreamBuilding>false</blockBuildWhenDownstreamBuilding>
   <blockBuildWhenUpstreamBuilding>false</blockBuildWhenUpstreamBuilding>
-  <triggers/>
+  <triggers>
+    <com.cloudbees.jenkins.GitHubPushTrigger plugin="github@1.29.0">
+      <spec></spec>
+    </com.cloudbees.jenkins.GitHubPushTrigger>
+  </triggers>
   <concurrentBuild>false</concurrentBuild>
   <builders>
     <hudson.tasks.Shell>
       <command>cd server-side/site/
-npm install || exit 1</command>
+npm install || exit 0</command>
     </hudson.tasks.Shell>
   </builders>
   <publishers>
@@ -43,7 +47,7 @@ npm install || exit 1</command>
           </logTexts>
           <EscalateStatus>false</EscalateStatus>
           <RunIfJobSuccessful>false</RunIfJobSuccessful>
-          <script>ansible-playbook -i /home/ubuntu/proj2/hosts /home/ubuntu/proj2/checkbox.yml --vault-password-file /home/ubuntu/proj2/vault_pass.txt</script>
+          <script>ansible-playbook -i /home/ubuntu/DevOps_Project/hosts /home/ubuntu/DevOps_Project/checkbox.yml --vault-password-file /home/ubuntu/DevOps_Project/vault_pass.txt</script>
         </hudson.plugins.postbuildtask.TaskProperties>
       </tasks>
     </hudson.plugins.postbuildtask.PostbuildTask>
